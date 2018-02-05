@@ -21,19 +21,6 @@ const reorder = (list, startIndex, endIndex) => {
   return result;
 };
 
-const Card = styled.div`
-  user-select: none;
-  padding: 16px;
-  margin: 0 0 8px 0;
-`;
-
-const getItemStyle = (isDragging, draggableStyle) => ({
-  //change bg color if dragging
-  background: isDragging ? "lightgreen" : "grey",
-  //styles we need to apply on draggables
-  ...draggableStyle
-});
-
 const getListStyle = isDraggingOver => ({
   background: isDraggingOver ? "lightblue" : "lightgrey",
   padding: "8px",
@@ -96,8 +83,8 @@ class App extends Component<AppProps, AppState> {
   }
 
   onDragStart = (initial: DragStart): void => {
-    console.log("onDragStart called!!!");
-    console.log("initial:  ", initial);
+    // console.log("onDragStart called!!!");
+    // console.log("initial:  ", initial);
 
     this.setState({
       dragStarted: true
@@ -114,8 +101,8 @@ class App extends Component<AppProps, AppState> {
      This runs when the item is finished moving (not when the use lets go of the item)
   */
   onDragEnd = (result: DropResult): void => {
-    console.log("onDragEnd being called");
-    console.log("result:  ", result);
+    // console.log("onDragEnd being called");
+    // console.log("result:  ", result);
 
     //dropped outside the list
     if (!result.destination) {

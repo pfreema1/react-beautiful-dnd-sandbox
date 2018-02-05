@@ -12,6 +12,7 @@ interface CardContainerProps {
 interface CardContainerState {
   dragStarted: boolean;
   key: number;
+  startRotation: boolean;
 }
 
 interface Item {
@@ -24,17 +25,7 @@ const Card = styled.div`
   margin: 0 0 8px 0;
 `;
 
-const getItemStyle = (isDragging, draggableStyle, rotDeg) => {
-  console.log(parseInt(rotDeg));
-  return {
-    //change bg color if dragging
-    background: isDragging ? "lightgreen" : "grey",
-    // style={{ transform: `rotate(${interpStyle.rotDeg}deg)` }}
-    transform: "rotate(" + parseInt(rotDeg) + "deg)", //`rotate(${rotDeg}deg)`,
-    //styles we need to apply on draggables
-    ...draggableStyle
-  };
-};
+let maxRotDeg = 20;
 
 class CardContainer extends React.Component<
   CardContainerProps,
@@ -45,7 +36,8 @@ class CardContainer extends React.Component<
 
     this.state = {
       dragStarted: props.dragStarted,
-      key: 10
+      key: 10,
+      startRotation: false
     };
   }
 
@@ -57,10 +49,33 @@ class CardContainer extends React.Component<
     }
   }
 
+  getItemStyle = (isDragging: boolean, draggableStyle, rotDeg: number) => {
+    console.log("rotDeg:  ", rotDeg);
+    console.log("maxRotDeg:  ", maxRotDeg);
+    if (rotDeg > maxRotDeg - 2) {
+      //case: if the interpolated rotDeg is close to the maxRotDeg lets reverse it
+      maxRotDeg = 0;
+      console.log("rotDeg > maxRotDeg - 2");
+    } else if (rotDeg == 0) {
+      maxRotDeg = 20;
+    }
+
+    return {
+      //change bg color if dragging
+      background: isDragging ? "lightgreen" : "grey",
+
+      //styles we need to apply on draggables
+      ...draggableStyle,
+      transform:
+        draggableStyle.transform + " rotate(" + parseInt(rotDeg) + "deg)"
+    };
+  };
+
   handleDragStarted = () => {
-    console.log("handling drag STARTED IENIDNIDD");
+    // console.log("handling drag STARTED IENIDNIDD");
     this.setState({
-      key: this.state.key + 1
+      key: this.state.key + 1,
+      startRotation: true
     });
 
     //reset state in parent
@@ -75,7 +90,9 @@ class CardContainer extends React.Component<
         <Motion
           key={this.state.key}
           defaultStyle={{ rotDeg: 0 }}
-          style={{ rotDeg: spring(20, { stiffness: 30, damping: 17 }) }}
+          style={{
+            rotDeg: this.state.startRotation ? spring(maxRotDeg) : spring(0)
+          }}
         >
           {interpStyle => {
             return (
@@ -84,7 +101,7 @@ class CardContainer extends React.Component<
                 {...provided.draggableProps}
                 {...provided.dragHandleProps}
                 //function to handle conditional styles
-                style={getItemStyle(
+                style={this.getItemStyle(
                   snapshot.isDragging,
                   provided.draggableProps.style,
                   interpStyle.rotDeg
