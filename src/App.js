@@ -2,6 +2,7 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import CardContainer from "./Containers/CardContainer";
 
 // fake data generator - returns an array of objects of size 'count'
 const getItems = count => {
@@ -47,6 +48,7 @@ interface AppProps {}
 
 interface AppState {
   items: ItemObject[];
+  dragStarted: boolean;
 }
 
 interface ItemObject {
@@ -86,7 +88,8 @@ class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
-      items: getItems(2)
+      items: getItems(2),
+      dragStarted: false
     };
 
     // this.onDragEnd = this.onDragEnd.bind(this);
@@ -95,6 +98,16 @@ class App extends Component<AppProps, AppState> {
   onDragStart = (initial: DragStart): void => {
     console.log("onDragStart called!!!");
     console.log("initial:  ", initial);
+
+    this.setState({
+      dragStarted: true
+    });
+  };
+
+  dragStartHandled = (): void => {
+    this.setState({
+      dragStarted: false
+    });
   };
 
   /* 
@@ -138,26 +151,17 @@ class App extends Component<AppProps, AppState> {
                 <Draggable key={item.id} draggableId={item.id} index={index}>
                   {(provided, snapshot) => {
                     return (
-                      <div>
-                        <Card
-                          innerRef={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          //function to handle conditional styles
-                          style={getItemStyle(
-                            snapshot.isDragging,
-                            provided.draggableProps.style
-                          )}
-                        >
-                          meow
-                        </Card>
-                        {provided.placeholder}
-                      </div>
+                      <CardContainer
+                        item={item}
+                        dragStartHandled={this.dragStartHandled}
+                        dragStarted={this.state.dragStarted}
+                        provided={provided}
+                        snapshot={snapshot}
+                      />
                     );
                   }}
                 </Draggable>
               ))}
-              {provided.placeholder}
             </div>
           )}
         </Droppable>
